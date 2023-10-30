@@ -90,23 +90,31 @@ let common = {
             if (result.error_msg) {
                 html('login_note', result.error_msg);
                 remove_class('login_note', 'fade');
-                setTimeout(function() { add_class('login_note', 'fade'); }, 3000);
-                setTimeout(function() { html('login_note', ''); }, 3500);
+                setTimeout(function () {
+                    add_class('login_note', 'fade');
+                }, 3000);
+                setTimeout(function () {
+                    html('login_note', '');
+                }, 3500);
             } else html(qs('body'), result.html);
         });
     },
 
     auth_confirm: () => {
         // vars
-        let data = { phone: gv('phone'), code: gv('code') };
-        let location = { dpt: 'auth', act: 'confirm' };
+        let data = {phone: gv('phone'), code: gv('code')};
+        let location = {dpt: 'auth', act: 'confirm'};
         // call
-        request({ location: location, data: data }, (result) => {
+        request({location: location, data: data}, (result) => {
             if (result.error_msg) {
                 html('login_note', result.error_msg);
                 remove_class('login_note', 'fade');
-                setTimeout(function() { add_class('login_note', 'fade'); }, 3000);
-                setTimeout(function() { html('login_note', ''); }, 3500);
+                setTimeout(function () {
+                    add_class('login_note', 'fade');
+                }, 3000);
+                setTimeout(function () {
+                    html('login_note', '');
+                }, 3500);
             } else window.location = window.location.href;
         });
     },
@@ -115,8 +123,8 @@ let common = {
 
     search_do: (act) => {
         // vars
-        let data = { search: gv('search') };
-        let location = { dpt: 'search', act: act };
+        let data = {search: gv('search')};
+        let location = {dpt: 'search', act: act};
         // call
         request({location: location, data: data}, (result) => {
             html('table', result.html);
@@ -157,6 +165,54 @@ let common = {
             html('table', result.html);
         });
     },
+    // users
+
+    user_edit_window: (user_id, e) => {
+        // actions
+        cancel_event(e);
+        common.menu_popup_hide_all('all');
+        // vars
+        let data = {user_id: user_id};
+        let location = {dpt: 'user', act: 'edit_window'};
+        // call
+        request({location: location, data: data}, (result) => {
+            common.modal_show(400, result.html);
+        });
+    },
+
+    user_edit_update: (user_id = 0) => {
+        // vars
+        let data = {
+            user_id: user_id,
+            first_name: gv('first_name'),
+            last_name: gv('last_name'),
+            phone: gv('phone'),
+            email: gv('email'),
+            plot_id: gv('plot_id'),
+            offset: global.offset
+        };
+        let location = {dpt: 'user', act: 'edit_update'};
+        // call
+
+        if (!data["first_name"] || !data["last_name"] || !data["phone"] || !data["email"]) {
+            alert('Пожалуйста, заполните все обязательные поля (First name, Last name, Phone, Email).');
+            return;
+        }
+        request({location: location, data: data}, (result) => {
+            common.modal_hide();
+            html('table', result.html);
+        });
+    },
+
+    user_edit_delete: (user_id= 0) => {
+        if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+            let location = {dpt: 'user', act: 'edit_delete'};
+            let data = {user_id: user_id,offset: global.offset}
+            request({location: location, data: data}, (result) => {
+                html('table', result.html);
+            });
+        }
+    }
 }
 
 add_event(document, 'DOMContentLoaded', common.init);
